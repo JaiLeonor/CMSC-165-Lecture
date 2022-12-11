@@ -15,7 +15,7 @@ def remove_text(image):
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
-    dimensions = (0, 0)
+    p2mm = 0
 
     for cnt in cnts:
         area = cv2.contourArea(cnt)
@@ -29,10 +29,10 @@ def remove_text(image):
             d = (b ** 2) - (4 * area)
 
             # find two solutions
-            sol1 = (-b - cmath.sqrt(d)) / 2
+            # sol1 = (-b - cmath.sqrt(d)) / 2
             sol2 = (-b + cmath.sqrt(d)) / 2
 
-            dimensions = (sol1.real, sol2.real)
+            p2mm = sol2.real
 
             cv2.drawContours(mask,[cnt],0,255,-1)
 
@@ -40,16 +40,14 @@ def remove_text(image):
 
     cv2.imwrite('remove_text.png', result)
 
-    return result, dimensions
+    return result, p2mm
 
 def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad, classThreshold):
     # read image
     image = cv2.imread(mainImg)
 
     #Remove text
-    image, dimensions = remove_text(image)
-
-    # print(dimensions)
+    image, p2mm = remove_text(image)
 
     # gray scale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -73,12 +71,11 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
             return ((255 - s2) / (255 - r2)) * (pix - r2) + s2
 
     #Classify pollens
+    #NOTE: Returns 1 for light pollen, 0 for dark pollen
     def classify_pollen(image, x, y, r, threshold):
         circle_img = np.zeros((image.shape[0], image.shape[1]), np.uint8)
         cv2.circle(circle_img, (x, y,), r, (255, 255, 255), -1)
-        if cv2.mean(image, mask=circle_img)[0] > threshold: 
-            return 1
-        return 0
+        return 1 if cv2.mean(image, mask=circle_img)[0] > threshold else 0
 
     # Define parameters.
     r1 = 100
@@ -105,10 +102,9 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
     # Otsu's thresholding
     ret4, th4 = cv2.threshold(dilation, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    remove_text(image)
-
     # Initialize the list
     pollen_count, x_count, y_count, pollen_class = [], [], [], []
+    bigD, bigL = 0, 0
 
     # read original image, to display the circle and center detection 
     display = cv2.imread(mainImg)
@@ -124,9 +120,13 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
         for (x, y, r) in circles:
             pollen_class.append(classify_pollen(claheNorm, x, y, r, classThreshold))
             if pollen_class[-1]:
+                if r > bigL:
+                    bigL = r
                 cv2.circle(display, (x, y), r, (255, 255, 0), 2)
                 cv2.rectangle(display, (x - 2, y - 2), (x + 2, y + 2), (150, 128, 255), -1)
             else:
+                if r > bigD:
+                    bigD = r
                 cv2.circle(display, (x, y), r, (0, 255, 0), 2)
                 cv2.rectangle(display, (x - 2, y - 2), (x + 2, y + 2), (0, 128, 255), -1)
             pollen_count.append(r)

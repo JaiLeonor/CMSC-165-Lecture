@@ -1,11 +1,55 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import cmath
 
+def remove_text(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    thresh = cv2.threshold(gray, 155, 255, cv2.THRESH_BINARY)[1]
+
+    kernel = np.ones((3,3), np.uint8)
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_DILATE, kernel)
+
+    mask = np.zeros_like(gray, np.uint8)
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+    dimensions = (0, 0)
+
+    for cnt in cnts:
+        area = cv2.contourArea(cnt)
+        if area > 1000:
+            perimeter = cv2.arcLength(cnt, True)
+
+            #Calculate dimensions of the rectangle (ax**2 + bx + c = 0)
+            b = -perimeter / 2
+
+            # calculate the discriminant
+            d = (b ** 2) - (4 * area)
+
+            # find two solutions
+            sol1 = (-b - cmath.sqrt(d)) / 2
+            sol2 = (-b + cmath.sqrt(d)) / 2
+
+            dimensions = (sol1.real, sol2.real)
+
+            cv2.drawContours(mask,[cnt],0,255,-1)
+
+    result = cv2.inpaint(image,mask,3,cv2.INPAINT_NS)
+
+    cv2.imwrite('remove_text.png', result)
+
+    return result, dimensions
 
 def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad):
     # read image
     image = cv2.imread(mainImg)
+
+    #Remove text
+    image, dimensions = remove_text(image)
+
+    # print(dimensions)
 
     # gray scale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -27,7 +71,8 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
             return ((s2 - s1) / (r2 - r1)) * (pix - r1) + s1
         else:
             return ((255 - s2) / (255 - r2)) * (pix - r2) + s2
-    
+
+    #Classify pollens
     def classify_pollen(image, x, y, r, threshold):
         circle_img = np.zeros((image.shape[0], image.shape[1]), np.uint8)
         cv2.circle(circle_img, (x, y,), r, (255, 255, 255), -1)
@@ -58,8 +103,9 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
     dilation = cv2.dilate(closing, kernel, iterations=1)
 
     # Otsu's thresholding
-    ret4, th4 = cv2.threshold(
-        dilation, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret4, th4 = cv2.threshold(dilation, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    remove_text(image)
 
     # Initialize the list
     pollen_count, x_count, y_count, pollen_class = [], [], [], []
@@ -107,7 +153,7 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
     cv2.imwrite("th4.png", th4)
 
 
-mainImg = "practice_image_2.jpg"
+mainImg = "practice_image_3.jpg"
 outputImgName = "main_output.png"
 
 # params to be modified to detect pollen

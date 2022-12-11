@@ -137,7 +137,7 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
 
     # returns all the necessary values to display
     # NOTE: still missing pixel-to-micrometer, largest dark, largest light
-    return ["pix2mm", pollen_class.count(0), pollen_class.count(1), "dark", "light"]
+    return ["%d pixels : 1μm" % (p2mm), pollen_class.count(0), pollen_class.count(1), "%dμm" % bigD, "%dμm" % bigL]
 
     # display the count of pollen
     # print(len(pollen_count))
@@ -157,17 +157,17 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
     cv2.imwrite("th4.png", th4)
 
 
-mainImg = "practice_image_3.jpg"
-outputImgName = "main_output.png"
+# mainImg = "practice_image_3.jpg"
+# outputImgName = "main_output.png"
 
-# params to be modified to detect pollen
-classThreshold = 70
-cannyEdgeLow = 100
-cannyEdgeHigh = 230
-houghParam2 = 33  # controls tuning of circle detection
+# # params to be modified to detect pollen
+# classThreshold = 70
+# cannyEdgeLow = 100
+# cannyEdgeHigh = 230
+# houghParam2 = 33  # controls tuning of circle detection
 
-minDist = 70    # min distance between circles
-minRad = 10     # min radius of circles
-maxRad = 60     # max radius of circles
+# minDist = 70    # min distance between circles
+# minRad = 10     # min radius of circles
+# maxRad = 60     # max radius of circles
 
-count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad, classThreshold)
+# count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad, classThreshold)

@@ -175,11 +175,21 @@ def create_open_image(window):
 	open_button = tk.Button(open_image_frame, text="Open File", command= lambda : open_file(image_panel, class_threshold, hough_param, canny_high, canny_low, min_radius, max_radius, min_distance))
 
 	# packing the widgets
-	open_button.pack(fill=BOTH, expand=True, padx=5, pady=5)
-	variables_frame.pack(fill=BOTH, expand=True, padx=5, pady=5)
-	image_panel.pack(fill=BOTH, expand=True, padx=5, pady=5)
+	# open_button.pack(fill=BOTH, expand=True, padx=5, pady=5)
+	# variables_frame.pack(fill=BOTH, expand=True, padx=5, pady=5)
+	# image_panel.pack(fill=BOTH, expand=True, padx=5, pady=5)
 	
-	open_image_frame.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
+	open_button.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+	variables_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+	image_panel.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
+
+	open_image_frame.columnconfigure(0, weight=1)
+	open_image_frame.rowconfigure((0,1), weight=1)
+	open_image_frame.rowconfigure(2, weight=3)
+
+	# open_image_frame.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
+
+	open_image_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
 	return
 	
@@ -191,7 +201,8 @@ def create_summary_table(window):
 	summary_table.column("#1", anchor="center")
 	summary_table.column("#2", anchor="center")
 	
-	summary_table.pack(side=BOTTOM, fill=X, expand=True, padx=5, pady=5)
+	# summary_table.pack(side=BOTTOM, fill=X, expand=True, padx=5, pady=5)
+	summary_table.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
 	summary_details = [
 		['Pixel-to-μm', 'N/A'],
@@ -210,5 +221,9 @@ window = tk.Tk()
 window.title("Yung Team na 'Di Nangangagat")
 create_open_image(window)
 summary_table = create_summary_table(window)
+
+window.columnconfigure(0, weight=1)
+window.rowconfigure(0, weight=5)
+window.rowconfigure(1, weight=1)
 
 window.mainloop()

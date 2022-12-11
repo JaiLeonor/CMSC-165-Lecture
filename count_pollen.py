@@ -42,7 +42,7 @@ def remove_text(image):
 
     return result, dimensions
 
-def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad):
+def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad, classThreshold):
     # read image
     image = cv2.imread(mainImg)
 
@@ -122,7 +122,7 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
         circles = np.round(circles[0, :]).astype("int")
         # loop over the (x, y) coordinates and radius of the circles
         for (x, y, r) in circles:
-            pollen_class.append(classify_pollen(claheNorm, x, y, r, 70))
+            pollen_class.append(classify_pollen(claheNorm, x, y, r, classThreshold))
             if pollen_class[-1]:
                 cv2.circle(display, (x, y), r, (255, 255, 0), 2)
                 cv2.rectangle(display, (x - 2, y - 2), (x + 2, y + 2), (150, 128, 255), -1)
@@ -134,6 +134,10 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
             y_count.append(y)
         # show the output image
         cv2.imwrite(outputImgName, display)
+
+    # returns all the necessary values to display
+    # NOTE: still missing pixel-to-micrometer, largest dark, largest light
+    return ["pix2mm", pollen_class.count(0), pollen_class.count(1), "dark", "light"]
 
     # display the count of pollen
     # print(len(pollen_count))
@@ -157,6 +161,7 @@ mainImg = "practice_image_3.jpg"
 outputImgName = "main_output.png"
 
 # params to be modified to detect pollen
+classThreshold = 70
 cannyEdgeLow = 100
 cannyEdgeHigh = 230
 houghParam2 = 33  # controls tuning of circle detection
@@ -165,4 +170,4 @@ minDist = 70    # min distance between circles
 minRad = 10     # min radius of circles
 maxRad = 60     # max radius of circles
 
-count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad)
+count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam2, minDist, minRad, maxRad, classThreshold)

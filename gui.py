@@ -69,7 +69,7 @@ def open_file(image_panel, class_threshold, hough_param, canny_high, canny_low, 
 	if not file_path:
 		return
 
-	# ==== THIS IS WHERE WE DO STUFFS ====
+	# ==== THIS IS WHERE WE DO STUFFS ====	
 
 	# ========= TEST function
 	# obtained_values = do_stuffs()
@@ -109,8 +109,9 @@ def open_file(image_panel, class_threshold, hough_param, canny_high, canny_low, 
 	output_image = ImageTk.PhotoImage(output_image)
 
 	# update image panel
-	image_panel.configure(image=output_image)
-	image_panel.image=output_image
+	image_panel.configure(text="Image Processed!")
+	# image_panel.configure(image=output_image)
+	# image_panel.image=output_image
 
 def create_variables_form(variables_frame):
 	# FIRST COLUMN
@@ -156,8 +157,7 @@ def create_variables_form(variables_frame):
 	min_distance.grid(row=0, column=7, padx=2, pady=2, sticky="ew")
 	min_distance.insert(0, 70)
 
-	variables_frame.columnconfigure((0,2,4,6), weight=1)
-	variables_frame.columnconfigure((1,3,5,7), weight=3)
+	variables_frame.columnconfigure((0,1,2,3,4,5,6,7), weight=1)
 
 	return class_threshold, hough_param, canny_high, canny_low, min_radius, max_radius, min_distance
 
@@ -184,8 +184,7 @@ def create_open_image(window):
 	image_panel.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
 
 	open_image_frame.columnconfigure(0, weight=1)
-	open_image_frame.rowconfigure((0,1), weight=1)
-	open_image_frame.rowconfigure(2, weight=3)
+	open_image_frame.rowconfigure((0,1,2), weight=1)
 
 	# open_image_frame.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
 
@@ -223,7 +222,6 @@ create_open_image(window)
 summary_table = create_summary_table(window)
 
 window.columnconfigure(0, weight=1)
-window.rowconfigure(0, weight=5)
-window.rowconfigure(1, weight=1)
+window.rowconfigure((0,1), weight=1)
 
 window.mainloop()

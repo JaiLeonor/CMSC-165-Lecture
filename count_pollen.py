@@ -135,9 +135,16 @@ def count_pollen(mainImg, outputImgName, cannyEdgeLow, cannyEdgeHigh, houghParam
         # show the output image
         cv2.imwrite(outputImgName, display)
 
+    # converts bigD and bigL to micrometer
+    diameterD = bigD*2
+    diameterL = bigL*2
+
+    # NOTE: 100 is from the image scale 
+    finalD = diameterD * (100 / p2mm)
+    finalL = diameterL * (100 / p2mm)
+
     # returns all the necessary values to display
-    # NOTE: still missing pixel-to-micrometer, largest dark, largest light
-    return ["%d pixels : 1μm" % (p2mm), pollen_class.count(0), pollen_class.count(1), "%dμm" % bigD, "%dμm" % bigL]
+    return ["%d pixels : 100μm" % (p2mm), pollen_class.count(0), pollen_class.count(1), "%.4fμm" % finalD, "%.4fμm" % finalL]
 
     # display the count of pollen
     # print(len(pollen_count))

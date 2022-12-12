@@ -8,7 +8,7 @@ The program also measures the pollen size based on the scale given in the image.
 ### Members:
 
 - Cabalda, Elroy Christian D.
-- insert name here
+- Leonor, Jairus Matthew D.
 - Mombay, Gerald Miguel B.
 
 # How to use
